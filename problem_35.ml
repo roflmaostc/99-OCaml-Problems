@@ -12,7 +12,7 @@ let rec sieve_era limit =
 
 
 (*Also possible to do loop over all even integers, but I wanted to use Sieve of Erastothenes*)
-let factors n = let sieve = sieve_era (int_of_float(sqrt(float n)))
+let factors n = let sieve = sieve_era n
   in
   let rec aux n acc = 
     if n>1 then 
