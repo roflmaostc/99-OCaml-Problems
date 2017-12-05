@@ -51,14 +51,14 @@ let huffman (l:(string*int) list) =
   let queue = List.fold_left (fun queue (var,prio) -> insert queue prio (NodeTree {v=var; l=Leaf; r=Leaf})) Empty l_probs     (*Initializes priority queue*)
   in
   let rec aux queue = 
-    let (prio1, ltree , queue) = extract queue 
+    let (prio1, (NodeTree{v=v1; l=l1; r=r1} as ltree ), queue) = extract queue 
     in
     match queue with
-        | Empty -> insert Empty prio1 ltree 
+        | Empty -> insert Empty prio1 (NodeTree{v=v1;l=l1;r=r1}) 
         | _ -> 
-          let (prio2, rtree , queue) = extract queue
+          let (prio2, (NodeTree{v=v2; l=l2; r=r2}as rtree) , queue) = extract queue
           in
-          aux (insert queue (prio1+.prio2) (NodeTree {v=" "; l=ltree; r=rtree}))
+          aux (insert queue (prio1+.prio2) (NodeTree {v=v1^v2; l=ltree; r=rtree}))
   in 
   let (_,tree,_) = extract(aux queue)
   in
