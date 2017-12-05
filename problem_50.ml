@@ -42,11 +42,11 @@ let rec to_code acc tree str = match tree with
   | _ -> failwith "Does not happen";;
 
 let huffman (l:(string*int) list) = 
-  let l_sorted = List.sort (fun (a1, b1) (a2, b2) -> if b1>=b2 then 1 else -1) l  (*sorts according to occurrences*)
+  (* let l_sorted = List.sort (fun (a1, b1) (a2, b2) -> if b1>=b2 then 1 else -1) l  (*sorts according to occurrences*) *)
+  (* in *)
+  let base = List.fold_left (fun acc (var, freq) -> acc+freq) 0 l    (*sum of all occurrences*)
   in
-  let base = List.fold_left (fun acc (var, freq) -> acc+freq) 0 l_sorted    (*sum of all occurrences*)
-  in
-  let l_probs = List.rev_map (fun (a,b) -> (a,(float b)/.(float base))) l_sorted    (*probality insteaf of occurence*)
+  let l_probs = List.rev_map (fun (a,b) -> (a,(float b)/.(float base))) l    (*probality insteaf of occurence*)
   in
   let queue = List.fold_left (fun queue (var,prio) -> insert queue prio (NodeTree {v=var; l=Leaf; r=Leaf})) Empty l_probs     (*Initializes priority queue*)
   in
