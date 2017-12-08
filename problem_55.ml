@@ -6,6 +6,14 @@ type ('a,'b) binary_tree =
 type direction = Left | Right;;
 type height_change = Remained | Increased | Decreased;;
 
+let rec max_tree t = match t with
+  | Leaf -> None
+  | Node{k;v;r;_} -> if r=Leaf then Some (k,v) else max_tree r;;
+
+let rec min_tree t = match t with
+  | Leaf -> None
+  | Node{k;v;l;_} -> if l=Leaf then Some(k,v) else min_tree l;;
+
 
 let update_balance (t:('a,'b) binary_tree) hchange dir = match t with
   | Leaf -> (Remained,Leaf)
@@ -59,7 +67,7 @@ let rotate_right_left t = match t with
       (Remained, Node{v=rl_v;k=rl_k;bal=0; l=Node{v;k;bal=0;   l=left;r=rl_l};r=Node{k=r_k;v=r_v;bal=0; l=rl_r;r=r_r}})
     else
       (Remained, Node{v=rl_v;k=rl_k;bal=0; l=Node{v;k;bal=0;   l=left;r=rl_l};r=Node{k=r_k;v=r_v;bal=1; l=rl_r;r=r_r}})
-  | _ -> failwith "Something inside rebalance went wrong"
+  | _ -> failwith "Something inside rotate_right_left went wrong"
 
 
 let rotate_left_right t = match t with
@@ -70,7 +78,7 @@ let rotate_left_right t = match t with
       (Remained, Node{v=lr_v;k=lr_k;bal=0; l=Node{v=l_v;k=l_k;bal=0;   l=l_l;r=lr_l};r=Node{v;k;bal=0;l=lr_r; r=right}}) 
     else
       (Remained, Node{v=lr_v;k=lr_k;bal=0; l=Node{v=l_v;k=l_k;bal=(-1);l=l_l;r=lr_l};r=Node{v;k;bal=0;l=lr_r; r=right}}) 
-  | _ -> failwith "Something inside rebalance went wrong"
+  | _ -> failwith "Something inside rotate_left_right went wrong"
 
 
 
@@ -112,7 +120,29 @@ let insert t key value =
   in
   t
 
-
+let rec remove t key =
+  let rec aux_remove t key from =
+    match t with
+      | Leaf -> failwith "key not in tree"
+      | Node{k; v; bal; l; r} -> 
+        if k=key then match (max_tree l) with 
+            | None -> (Decreased, r) 
+            | Some (k,v) -> 
+              let hchange,l = aux_remove l k Left
+              in
+              rebalance(update_balance (Node{k;v;bal;l;r}) hchange Left)
+        else if key<k then
+          let hchange,l = aux_remove l key Left
+          in
+          rebalance(update_balance (Node{k;v;bal;l;r}) hchange Left)
+        else 
+          let hchange,r = aux_remove r key Right
+          in
+          rebalance(update_balance (Node{k;v;bal;l;r}) hchange Right)
+  in
+  let hchange, t = aux_remove t key Left
+  in
+  t
 
 
 
