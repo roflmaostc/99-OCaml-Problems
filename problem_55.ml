@@ -72,7 +72,7 @@ let rotate_right_left t = match t with
 
 let rotate_left_right t = match t with
   | Node{v;k;bal;l=Node{k=l_k; v=l_v;bal=l_bal; l=l_l;r=Node{k=lr_k; v=lr_v; bal=lr_bal; l=lr_l; r=lr_r}}; r=right} ->
-    if lr_bal>0 then 
+    if lr_bal<0 then 
       (Remained, Node{v=lr_v;k=lr_k;bal=0; l=Node{v=l_v;k=l_k;bal=0;   l=l_l;r=lr_l};r=Node{v;k;bal=1;l=lr_r; r=right}}) 
     else if lr_bal=0 then
       (Remained, Node{v=lr_v;k=lr_k;bal=0; l=Node{v=l_v;k=l_k;bal=0;   l=l_l;r=lr_l};r=Node{v;k;bal=0;l=lr_r; r=right}}) 
@@ -165,3 +165,24 @@ let rec find t key = match t with
 
 
 let rec rand_list k lim = if k<lim then (k, Random.float 100.0)::(rand_list (k+1) lim) else [];;
+
+(*from 99problems solution*)
+let rec permutation list =
+    let rec extract acc n = function
+      | [] -> raise Not_found
+      | h :: t -> if n = 0 then (h, acc @ t) else extract (h::acc) (n-1) t
+    in
+    let extract_rand list len =
+      extract [] (Random.int len) list
+    in
+    let rec aux acc list len =
+      if len = 0 then acc else
+        let picked, rest = extract_rand list len in
+        aux (picked :: acc) rest (len-1)
+    in
+    aux [] list (List.length list);;
+
+
+let rand_tree size = List.fold_left (fun t (key, value) -> insert t key value) Leaf (permutation(rand_list 0 size));;
+
+
