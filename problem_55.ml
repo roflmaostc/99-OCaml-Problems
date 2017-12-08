@@ -36,12 +36,11 @@ let update_balance (t:('a,'b) binary_tree) hchange dir = match t with
         if bal<=0 then (Increased,Node{v;k;bal=(bal-1); l=left; r=right})
         else (Remained,  Node{v;k;bal=bal-1; l=left; r=right}) 
 
+
 let rotate_right t = match t with
   | Leaf -> (Remained,Leaf)
   | Node{v;k;bal;l=Leaf; r=_} -> failwith "Don't call rotate_right with l=Leaf"
   | Node{v;k;bal;l=Node left;r=right} -> 
-    (* Node{v=left.v; k=left.k; bal=0; l=left.l; *) 
-    (*                                         r=Node{v;k;bal=0;l=left.r;r=right}} *)
    if left.bal=0 then (Remained,Node{v=left.v; k=left.k; bal=1; 
                            l=left.l;r=Node{v;k;bal=(-1);l=left.r;r=right}})
     else  (Remained,Node{v=left.v; k=left.k; bal=0; 
