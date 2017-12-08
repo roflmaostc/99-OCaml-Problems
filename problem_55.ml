@@ -1,6 +1,3 @@
-
-(*FEHLER PASSIERT BEIM RIGHT EINFUEGEN*)
-
 (* AVL-Tree implementation *) 
 type ('a,'b) binary_tree =
     | Leaf 
@@ -31,42 +28,70 @@ let update_balance (t:('a,'b) binary_tree) hchange dir = match t with
         if bal<=0 then (Increased,Node{v;k;bal=(bal-1); l=left; r=right})
         else (Remained,  Node{v;k;bal=bal-1; l=left; r=right}) 
 
-
 let rotate_right t = match t with
-  | Leaf -> Leaf
+  | Leaf -> (Remained,Leaf)
   | Node{v;k;bal;l=Leaf; r=_} -> failwith "Don't call rotate_right with l=Leaf"
-  | Node{v;k;bal;l=Node left;r=right} -> Node{v=left.v; k=left.k; bal; l=left.l; 
-                                            r=Node{v;k;bal;l=left.r;r=right}}
+  | Node{v;k;bal;l=Node left;r=right} -> 
+    (* Node{v=left.v; k=left.k; bal=0; l=left.l; *) 
+    (*                                         r=Node{v;k;bal=0;l=left.r;r=right}} *)
+   if left.bal=0 then (Remained,Node{v=left.v; k=left.k; bal=1; 
+                           l=left.l;r=Node{v;k;bal=(-1);l=left.r;r=right}})
+    else  (Remained,Node{v=left.v; k=left.k; bal=0; 
+                           l=left.l;r=Node{v;k;bal=0;l=left.r;r=right}})
 
 let rotate_left t = match t with
-  | Leaf -> Leaf
-  | Node{v;k;bal;l=_; r=Leaf} -> failwith "Don't call rotate_left with r=Leaf"
-  | Node{v;k;bal;l=left;r=Node right} -> Node{v=right.v; k=right.k; bal; 
-                                              l=Node{v;k;bal;l=right.l;r=left};r=right.r}
+  | Leaf -> (Remained,Leaf)
+  | Node{v;k;bal;l=_; r=Leaf} -> failwith "Don't call rotate_left with r=Leaf. Error in rebalance"
+  | Node{v;k;bal;l=left;r=Node right} ->
+    if right.bal=0 then (Remained,Node{v=right.v; k=right.k; bal=(-1); 
+                                l=Node{v;k;bal=1;l=left;r=right.l};r=right.r})
+    else  (Remained, Node{v=right.v; k=right.k; bal=0; 
+                                l=Node{v;k;bal=0;l=left;r=right.l};r=right.r})
 
 
 
+(*Look up wikipedia for the rules*)
+let rotate_right_left t = match t with
+  | Node{v;k;bal;l=left; r=Node{k=r_k; v=r_v;bal=r_bal; l=Node{k=rl_k; v=rl_v; bal=rl_bal; l=rl_l; r=rl_r}; r=r_r}} ->
+    if rl_bal>0 then 
+      (Remained, Node{v=rl_v;k=rl_k;bal=0; l=Node{v;k;bal=(-1);l=left;r=rl_l};r=Node{k=r_k;v=r_v;bal=0; l=rl_r;r=r_r}})
+    else if rl_bal=0 then
+      (Remained, Node{v=rl_v;k=rl_k;bal=0; l=Node{v;k;bal=0;   l=left;r=rl_l};r=Node{k=r_k;v=r_v;bal=0; l=rl_r;r=r_r}})
+    else
+      (Remained, Node{v=rl_v;k=rl_k;bal=0; l=Node{v;k;bal=0;   l=left;r=rl_l};r=Node{k=r_k;v=r_v;bal=1; l=rl_r;r=r_r}})
+  | _ -> failwith "Something inside rebalance went wrong"
+
+
+let rotate_left_right t = match t with
+  | Node{v;k;bal;l=Node{k=l_k; v=l_v;bal=l_bal; l=l_l;r=Node{k=lr_k; v=lr_v; bal=lr_bal; l=lr_l; r=lr_r}}; r=right} ->
+    if lr_bal>0 then 
+      (Remained, Node{v=lr_v;k=lr_k;bal=0; l=Node{v=l_v;k=l_k;bal=0;   l=l_l;r=lr_l};r=Node{v;k;bal=1;l=lr_r; r=right}}) 
+    else if lr_bal=0 then
+      (Remained, Node{v=lr_v;k=lr_k;bal=0; l=Node{v=l_v;k=l_k;bal=0;   l=l_l;r=lr_l};r=Node{v;k;bal=0;l=lr_r; r=right}}) 
+    else
+      (Remained, Node{v=lr_v;k=lr_k;bal=0; l=Node{v=l_v;k=l_k;bal=(-1);l=l_l;r=lr_l};r=Node{v;k;bal=0;l=lr_r; r=right}}) 
+  | _ -> failwith "Something inside rebalance went wrong"
+
+
+
+(*rebalance checks what to do. But rotating and chaning of balance weights is done in rotate_right etc.*)
 let rebalance (h,t) = match t with
   | Leaf -> (Remained,Leaf)
   | Node{v;k;bal;l=Leaf;r=Leaf} as n -> (Remained,n)
   | Node{v;k;bal;l=left; r=right} -> 
-    if bal=(-2) then (
-      let Node ln = left (*This is guaranteed since -2 can only occur when left!=Leaf*)
+    if bal=(-2) then 
+      let Node left = left
       in
-      if ln.bal<=0 then (Decreased,rotate_right (Node {v;k;bal=0; l=(Node{ln with bal=0});r=right})) 
-      else (Decreased,rotate_right (Node{v;k;bal=1;l=rotate_left (Node{ln with bal=0});r=right})))
-    else if bal=2 then (
-      let Node rn = right (*This is guaranteed since -2 can only occur when left!=Leaf*)
+      if left.bal<=0 then rotate_right (Node {v;k;bal; l=Node left;r=right}) 
+      else rotate_left_right t 
+    else if bal=2 then
+      let Node right = right
       in
-      if rn.bal>=0 then (Decreased,rotate_left (Node {v;k;bal=0; l=left; r=(Node{rn with bal=0})})) 
-      else  
-        let Node rn_ln = rn.l
-        in
-        let rn_ln = Node{k=rn_ln.k;v=rn_ln.v;bal=0;l=rn_ln.l;r=rn_ln.r}
-        in
-        (Decreased,rotate_left(Node{v;k;bal=(-1);l=left; r=(rotate_right (Node{v=rn.v;k=rn.k;bal=0;l=rn.l;r=rn_ln})) }))
-    ) 
+      if right.bal>=0 then rotate_left (Node {v;k;bal; l=left; r=Node right}) 
+      else rotate_right_left t 
     else (h,t)
+
+
 
 (* inserts element into tree and does rebalancing *)
 (* internal the tree and balance is returned *)
@@ -87,6 +112,17 @@ let insert t key value =
   in
   t
 
+
+
+
+
+
+let rec fold_left f acc tree = match tree with
+  | Leaf -> acc
+  | Node{k=x;v=v;bal;l;r} -> fold_left f (f x (fold_left f acc l)) r ;;
+
+
+let to_list tree = List.rev (fold_left (fun x acc-> x::acc) [] tree);;
 
 
 (*finds value to key*)
