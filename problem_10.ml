@@ -1,6 +1,4 @@
 
-
-
 let encode l = match l with
   | [] -> [] 
   | x::xs ->( let rec aux l ele counter= match l with

@@ -13,4 +13,3 @@ let rec rand_select l c = if c> 0 then
   else [];;
 
 let lotto_select n k = rand_select (range 1 k) n;;
-

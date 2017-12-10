@@ -1,3 +1,4 @@
+(*problem 26*)
 let rec extract k elems =
   let rec aux k elems acc = if k=0 then acc else(
     match elems with
@@ -6,7 +7,6 @@ let rec extract k elems =
   )
   in aux k elems [[]];;
 
-
 (*remove sub of base*)
 let set_diff base sub = 
   let rec not_contains elem ls = match ls with
@@ -14,11 +14,6 @@ let set_diff base sub =
     | [] -> true
   in
   List.filter (fun x -> not_contains x sub)base;; 
-
-
-let test = ["a"; "b"; "c"; "d"];;
-let init = List.map(fun x -> [x]) (extract 2 test) ;;
-(* init= [[["d"; "c"]]; [["d"; "b"]]; [["c"; "b"]]; [["d"; "a"]]; [["c"; "a"]]; [["b"; "a"]]] *)
 
 
 let rec low_combine l permus = match permus with
@@ -30,10 +25,12 @@ let rec high_combine ori set k = match set with
   | x::xs -> (low_combine x (extract k (set_diff ori (List.flatten x))))@(high_combine ori xs k)
   | [] ->[];;
 
+(*iterating over all group sizes*)
 let rec group2 ori groups acc= match groups with
   | x::xs -> group2 ori xs (high_combine ori acc x)
   |[] -> acc
 
+(*wrapper to init whole list*)
 let rec group l g = match g with 
   | x::xs -> group2 l xs (List.map(fun x -> [x]) (extract x l))
   | [] -> [];;

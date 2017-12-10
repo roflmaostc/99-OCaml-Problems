@@ -21,11 +21,10 @@ let rec count_leaves2 t =
   in
   aux t 0 []
 
-
-(*list is in order*)
-let leaves t = 
-  let rec aux t acc = match t with
-    | Empty -> acc
-    | Node(x, l, r) -> aux l (x::(aux r acc))
-  in
-  aux t [];;
+let leaves t =
+  let rec leaves_aux t acc = match t with
+      | Empty -> acc 
+      | Node(x, Empty, Empty) -> x::acc
+      | Node(x, l, r) -> leaves_aux l (leaves_aux r acc) 
+  in  
+  leaves_aux t [];;

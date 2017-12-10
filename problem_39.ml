@@ -3,7 +3,7 @@ let rec range a b = let rec aux acc c = if a<=c && c<= b then aux (c::acc) (c+1)
   in if a>b then List.rev (range b a) else List.rev (aux [] 1);;
 
 
-(*Calculates all primes up to a limit.*)
+(*Calculates all primes up to a limit. Sieve of Eratosthenes*)
 let rec sieve_era limit = 
   let rec aux l acc = match l with
   | x::xs -> (aux (List.filter (fun n -> if n mod x = 0 then false else true) l) (x::acc))
