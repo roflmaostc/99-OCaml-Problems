@@ -20,3 +20,12 @@ let rec count_leaves2 t =
     | Node(v,left,right) -> aux left (counter+1) ( (Cont (fun c tail -> aux right c tail))::funs)
   in
   aux t 0 []
+
+
+(*list is in order*)
+let leaves t = 
+  let rec aux t acc = match t with
+    | Empty -> acc
+    | Node(x, l, r) -> aux l (x::(aux r acc))
+  in
+  aux t [];;
