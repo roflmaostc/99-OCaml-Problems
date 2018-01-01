@@ -9,15 +9,15 @@ let neighbours_edges v g = List.map
     (List.filter (fun (v1, v2, w)  -> v1=v || v2=v ) g.labeled_edges)
 
 
+
 exception Valid_edge
 exception Invalid_edge
-
 
 (*type which indicates whether an edge can be 
  * removed (because inner edge in already reached nodes)
  * Val_edge1 means n1 is a node in spanning tree to node n2 outside spanning tree
  * Val_edge2 n2 is in spanning tree and n1 outsinde
- * Lea_edge means this edge is useful but whether n1 or n2 is in spanning tree*)
+ * Lea_edge means this edge is useful but neither n1 nor n2 is in spanning tree*)
 type n = Rem_edge | Val_edge1 | Val_edge2 | Lea_edge
 
 
@@ -27,6 +27,9 @@ let minimum_tree g =
   in
   let edges = List.sort (fun (_,_, v1) (_,_, v2) -> compare v1 v2) g.labeled_edges
   in
+  (*edge is valid if one of n1 or n2 is in spanning tree and the other outside
+   * if both are inside then edge can be removed
+   * if both are outside edge must be kept*)
   let valid_edge n1 n2 nodes =
     (*List.mem can be more efficiently implemtend via Hash-Map*)
     let b1 = List.mem n1 nodes
@@ -42,6 +45,7 @@ let minimum_tree g =
     else 
         Lea_edge
   in
+  (*returns next valid edge and already filters unnecessary edges out*)
   let rec give_min_edge edges nodes acc = match edges with
     | (n1,n2,v)::tl -> 
        let r = (valid_edge n1 n2 nodes) 
@@ -56,6 +60,7 @@ let minimum_tree g =
          Some ((n2,n1,v), List.rev_append acc edges)
     | [] -> None 
   in
+  (*here edges are searched until no edges are left and we are finished*)
   let rec aux edges s_edges nodes = 
     match give_min_edge edges nodes [] with
       | Some ((start, stop, v), edges) -> aux edges ((start,stop, v)::s_edges) (stop::nodes)
