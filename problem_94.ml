@@ -1,5 +1,3 @@
-
-
 exception Solution_Found
 exception No_Solution
 (*Constraint
@@ -11,8 +9,6 @@ exception No_Solution
  * 4 is /
  * *)
 let arithmetic_puzzle l =
-  let n = List.length l
-  in
   let next_combination combis =
     List.fold_right (fun ele (b, acc) ->
         if ele = 0 then
@@ -104,7 +100,3 @@ let arithmetic_puzzle l =
   let str = to_string (solve  (List.rev_append (List.rev_map (fun _ -> 1 ) (List.tl (List.tl l))) [0])) l "" false
   in
   str
-
-
-
-
