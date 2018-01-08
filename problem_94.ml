@@ -79,7 +79,7 @@ let arithmetic_puzzle l =
       if b then 
         let b2, c = next_equal_pos c
         in
-        if b2=false then raise No_Solution
+        if b2=true then raise No_Solution
         else
             solve c
       else solve c
