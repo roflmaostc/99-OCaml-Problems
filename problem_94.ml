@@ -41,7 +41,7 @@ let arithmetic_puzzle l =
   let operator x = if x = 1 then (+)
     else if x = 2 then (-)
     else if x = 3 then ( * )
-    else if x = 4 then (/)
+    else if x = 4 then (fun a b -> if a mod b != 0 then raise Division_by_zero else a/b )
     else failwith "no operator to this number "
   in
   let rec eval c l = match (c,l) with
