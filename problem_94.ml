@@ -47,7 +47,7 @@ let arithmetic_puzzle l =
   let rec eval c l = match (c,l) with
     |([], [x]) -> x
     | (hdc::tlc, hdl::tll) -> (operator hdc) (eval tlc tll) hdl
-    | _ -> failwith "invalid input"
+    | _ -> raise No_Solution
   in
   let split c l = 
     let rec aux c l b = 
