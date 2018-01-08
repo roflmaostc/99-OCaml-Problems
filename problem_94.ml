@@ -69,18 +69,17 @@ let arithmetic_puzzle l =
     let firstc, firstl, secondc, secondl = split c l
     in
     try 
-    (if (eval (List.rev firstc) (List.rev firstl)) = (eval (List.rev secondc) (List.rev secondl)) then raise Solution_Found
+    (if (eval (List.rev firstc) (List.rev firstl)) = (eval (List.rev secondc) (List.rev secondl)) then true
     else false) with Division_by_zero -> false
   in
   let rec solve counter border c = 
-    try (
     if counter = border then raise No_Solution
     else if eval_equation c l = false then
       let b,c = next_combination c 
       in
       if b then solve (counter+1) border (snd (next_equal_pos c))
       else solve (counter+1 ) border c
-    else failwith "blub") with Solution_Found -> c
+    else c 
   in
   let operator_string x = if x=0 then "="
     else if x=1 then "+"
