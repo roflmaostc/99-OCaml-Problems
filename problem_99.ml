@@ -32,11 +32,11 @@ let solve_crossword file =
   let field_to_array field =
     let n = List.fold_left (fun acc x -> if String.length x>acc then String.length x else acc) 0 field
     in
-    let arr = Array.make_matrix (List.length field) n '0'
+    let arr = Array.make_matrix (List.length field) n '_'
     in 
     let _ = List.fold_left (
       fun y line -> let _ = List.fold_left 
-          (fun c ch -> arr.(y).(c) <- if ch = '.' then ' ' else '0' ; c+1) 0 (explode line)  in (y+1) 
+          (fun c ch -> arr.(y).(c) <- if ch = '.' then ' ' else '_' ; c+1) 0 (explode line)  in (y+1) 
     ) 0 field
     in
     arr
@@ -51,7 +51,7 @@ let solve_crossword file =
     if y = Array.length field  then acc 
     else if x = n then (if counter>1 then search_horizontal_slots field 0 (y+1) ((x-counter,y,counter, Horizontal)::acc) 0 n
                    else search_horizontal_slots field 0 (y+1) acc 0 n)
-    else if field.(y).(x) = '0' then 
+    else if field.(y).(x) = '_' then 
       ( if counter>1 then search_horizontal_slots field (x+1) y ((x-counter,y,counter, Horizontal)::acc) 0 n
         else search_horizontal_slots field (x+1) y acc 0 n
       ) 
@@ -61,7 +61,7 @@ let solve_crossword file =
     if x = Array.length field.(0)  then acc 
     else if y = n then (if counter>1 then search_vertical_slots field (x+1) y ((x,y-counter,counter, Vertical)::acc) 0 n
                    else search_vertical_slots field (x+1) 0 acc 0 n)
-    else if field.(y).(x) = '0' then 
+    else if field.(y).(x) = '_' then 
       ( if counter>1 then search_vertical_slots field x (y+1) ((x,y-counter,counter, Vertical)::acc) 0 n
         else search_vertical_slots field x (y+1) acc 0 n
       ) 
@@ -124,7 +124,7 @@ let print_board board =
   done
 
 
-let () = print_board (solve_crossword "p7_09b.dat")
+let () = print_board (solve_crossword "p7_09c.dat")
 
 
 
