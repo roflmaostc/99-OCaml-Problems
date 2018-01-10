@@ -59,7 +59,7 @@ let solve_crossword file =
   in
   let rec search_vertical_slots field (x:int) (y:int) acc (counter:int) (n:int) = 
     if x = Array.length field.(0)  then acc 
-    else if y = n then (if counter>1 then search_vertical_slots field (x+1) y ((x,y-counter,counter, Vertical)::acc) 0 n
+    else if y = n then (if counter>1 then search_vertical_slots field (x+1) 0 ((x,y-counter,counter, Vertical)::acc) 0 n
                    else search_vertical_slots field (x+1) 0 acc 0 n)
     else if field.(y).(x) = '_' then 
       ( if counter>1 then search_vertical_slots field x (y+1) ((x,y-counter,counter, Vertical)::acc) 0 n
@@ -108,33 +108,18 @@ let solve_crossword file =
         let _ = clear_field field hist
         in
         solve field (hw::checked_w) tlw (hs::tls) first
-    | (_,[]) -> raise Solution
+    | (_,[]) -> failwith "More words than fields" 
   in
   try solve field [] words slots true with Solution -> field;;
 
 
-
 let print_board board = 
-  for x = 0 to Array.length board.(0)-1 do
+  for y = 0 to Array.length board-1 do
     (
-    (for y = 0 to Array.length board-1 do
+    (for x = 0 to Array.length board.(0)-1 do
       Printf.printf "%s " (String.make 1 board.(y).(x))
     done);
     Printf.printf "\n")
   done
 
-
-let () = print_board (solve_crossword "p7_09c.dat")
-
-
-
-
-
-
-
-
-
-
-
-
-
+let () = print_board (solve_crossword "p7_09b.dat")
