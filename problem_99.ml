@@ -73,6 +73,7 @@ let solve_crossword file =
   in
   let slots = List.rev_append vslots hslots
   in
+  (*most essential part. sort slots locally via quadratic distance to generate as many insert errors as possible*)
   let slots = List.sort (fun (x1,y1,_,_) (x2,y2,_,_) -> compare (x1*x1+y1*y1) (x2*x2+y2*y2)) slots
   in
   let check_insert_word field (x,y,l,dir) word = 
