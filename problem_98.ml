@@ -11,6 +11,18 @@ let binomialCoeff n p =
     else res in
   int_of_float (cm 1. n 1.)
 
+let rec y_content board column =
+  let rec aux counter length acc acti = 
+    if counter = (Array.length board) then if acti then  (counter-length, length)::acc
+      else acc
+    else if board.(counter).(column) = '_' then
+      if acti then aux (counter+1) 0 ((counter-length,length)::acc) false
+      else aux (counter+1) 0 acc false
+    else aux (counter+1) (length+1) acc true
+  in 
+  snd (List.split (List.rev (aux 0 0 [] false))) 
+
+
 let next_combination board line = 
   (*this method constructs a new line combination in dependence of the old one*)
   try 
@@ -41,36 +53,42 @@ let next_combination board line =
    with  Failure x -> (board,false)
 
 
-let solve_nonogram nono =
-  let n, m = List.length (List.hd nono), List.length (List.nth nono 1) in
+let solve_nonogram nonox nonoy =
+  let n, m = List.length nonox, List.length nonoy in
   let consx, consy =  
-    (List.fold_right (fun ele acc -> match acc with [] -> (n-1,ele)::acc | (a,_)::tl -> (a-1,ele)::acc ) (List.nth nono 0) [] ),
-    (List.fold_right (fun ele acc -> match acc with [] -> (m-1,ele)::acc | (a,_)::tl -> (a-1,ele)::acc ) (List.nth nono 1) [] ) in
+    (List.fold_right (fun ele acc -> match acc with [] -> (n-1,ele)::acc | (a,_)::tl -> (a-1,ele)::acc ) nonox [] ),
+    (List.fold_right (fun ele acc -> match acc with [] -> (m-1,ele)::acc | (a,_)::tl -> (a-1,ele)::acc ) nonoy [] ) in
   (*we sort according to possible combinations. Rows with fewest combinations will be placed first*)
   let horiz_sortFunc (pos,ele) k = 
     let sum_blocks, blocks = List.fold_left (fun acc ele -> acc+ele) 0 ele, List.length ele in
     binomialCoeff (k-sum_blocks+1) (k-sum_blocks-blocks+1)
     (* binomialCoeff (blocks+1+(n-sum_blocks-blocks+1)-1) (n-sum_blocks-blocks+1) *) in
-  let consx = List.sort (fun a b -> compare (horiz_sortFunc a m) (horiz_sortFunc b m)) consx
-  in 
+  (* let consx = List.sort (fun a b -> compare (horiz_sortFunc a m) (horiz_sortFunc b m)) consx *)
+  (* in *) 
   let board = Array.make_matrix n m '_'
   in 
-  let init_row cons board = 
-    let i,eles = List.hd cons
-    in
+  let init_row (i,eles) board = 
     let rec aux counter eles = match eles with
-      | [] -> List.tl cons
+      | [] -> () 
       | h::tl -> (for j = 0 to (h-1) do board.(i).(j+counter) <- 'X' done); 
         aux (counter+h+1) tl
     in
     aux 0 eles
   in
-  (* let consx = init_row consx board *)
-  (* in *) 
-  (* let consx = init_row consx board *)
-  (* in *)
-  let consx = init_row [(2,[1;2;1;1])] board
+  (*initilization of board*)
+  let _ = List.fold_left (fun acc x -> init_row x board) () consx
   in
-  board
+  next_combination board 2
+  let rec aux l counter = match l with 
+    | [] -> failwith "dont know whats happen"
+    | h::tl -> 
+      let () = init_row h board
+      in
+      if (fst (List.fold_left (fun (acc,c) x -> ((y_content board c)::acc,c+1)) ([],0) nonoy))  = nonoy then failwith "correct"
+      else let (board,b) = next_combination board counter  
+  in
+  aux nonox board 0
+  (* (1* board *1) *)
   (* consx, consy *)
+  y_content board 0
   (* horiz_sortFunc (2, [6]) m *)
